@@ -1,0 +1,29 @@
+{
+  "address": {
+    "city": "Anytown",
+    "state": "CA",
+    "street": "123 Main St",
+    "zip": "12345"
+  },
+  "age": 30,
+  "email": "askdf@sdahfa.com",
+  "family": [
+    {
+      "age": 32,
+      "role": "Father"
+    },
+    {
+      "age": 30,
+      "role": "Mother"
+    },
+    {
+      "age": 1,
+      "role": "Daughter"
+    },
+    {
+      "age": 5,
+      "role": "Son"
+    }
+  ],
+  "first_name": "John Doe"
+}
