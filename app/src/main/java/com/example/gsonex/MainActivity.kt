@@ -14,7 +14,6 @@ import retrofit2.*
 import com.example.gsonex.model.JSONPlaceholderAPI
 import com.example.gsonex.model.Post
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 
 class MainActivity : AppCompatActivity() {
@@ -65,6 +64,8 @@ class MainActivity : AppCompatActivity() {
 
 
         textViewResult = findViewById(R.id.text_view_result)
+        textViewResult.text = ""
+
         val baseURLString: String = "https://jsonplaceholder.typicode.com/"
         val retrofit = Retrofit.Builder()
             .baseUrl(baseURLString)
@@ -72,8 +73,8 @@ class MainActivity : AppCompatActivity() {
             .build()
         jsonPlaceHolderApi = retrofit.create(JSONPlaceholderAPI::class.java)
 
-        getPosts()
-        //getComments(1)
+        //getPosts()
+        getComments(1)
 
     }
 
@@ -81,19 +82,27 @@ class MainActivity : AppCompatActivity() {
 
 
         //val getCall = jsonPlaceHolderApi.getPosts()
-        val getCallByUserID = jsonPlaceHolderApi.getPostsByUserId(6)
+        //val getCallByUserID = jsonPlaceHolderApi.getPostsByUserId(6)
 
-        getCallByUserID.enqueue(object : Callback<MutableList<Post>> {
+        val parametersGET = mutableMapOf<String,String>()
+        parametersGET.put("userId","6")
+        parametersGET.put("_sort","id")
+        parametersGET.put("_order","desc")
+        val getCallByUserIDAndSortDesc = jsonPlaceHolderApi.getPostsByUserIdAndSort(parametersGET)
+
+        getCallByUserIDAndSortDesc.enqueue(object : Callback<MutableList<Post>> {
             override fun onResponse(
                 call: Call<MutableList<Post>>,
                 response: Response<MutableList<Post>>
             ) {
                 if (response.isSuccessful) {
-                    textViewResult.text = ""
                     textViewResult.append("Success\n")
                     Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
                     val posts = response.body()
                     for (post in posts!!) {
+
+                        println("Post User ID ${post}")
+
                         var content = ""
                         content += "ID: ${post.id}\n"
                         content += "User ID: ${post.userID}\n"
@@ -121,7 +130,11 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this@MainActivity, "Invalid Post ID", Toast.LENGTH_SHORT).show()
             return
         }
-        val getCall = jsonPlaceHolderApi.getComments(postIDComments)
+
+
+        //val getCall = jsonPlaceHolderApi.getComments(postIDComments)
+        val getURL = "posts/$postIDComments/comments"
+        val getCall = jsonPlaceHolderApi.getComments(getURL)
         getCall.enqueue(object : Callback<MutableList<Comment>> {
             override fun onResponse(
                 call: Call<MutableList<Comment>?>,
