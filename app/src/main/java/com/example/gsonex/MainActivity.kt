@@ -16,6 +16,7 @@ import com.example.gsonex.model.Post
 import retrofit2.converter.gson.GsonConverterFactory
 
 
+@Suppress("SameParameterValue")
 class MainActivity : AppCompatActivity() {
 
     private lateinit var textViewResult: TextView
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         textViewResult = findViewById(R.id.text_view_result)
         textViewResult.text = ""
 
-        val baseURLString: String = "https://jsonplaceholder.typicode.com/"
+        val baseURLString = "https://jsonplaceholder.typicode.com/"
         val retrofit = Retrofit.Builder()
             .baseUrl(baseURLString)
             .addConverterFactory(GsonConverterFactory.create())
@@ -74,8 +75,135 @@ class MainActivity : AppCompatActivity() {
         jsonPlaceHolderApi = retrofit.create(JSONPlaceholderAPI::class.java)
 
         //getPosts()
-        getComments(1)
+        //getComments(3)
+        //createPOST(20, "New TITLE", "New BODY TEXT")
+        updatePOST()
+        patchPOST()
+        deletPOST(5)
+    }
 
+    private fun deletPOST(userID:Int){
+
+        val deleteCall = jsonPlaceHolderApi.deletePost(userID)
+        deleteCall.enqueue(object : Callback<Unit> {
+
+            override fun onResponse(
+                call: Call<Unit?>,
+                response: Response<Unit?>
+            ) {
+                if (response.isSuccessful) {
+                    textViewResult.append("Success in Delete \nResponse Code : ${response.code()}\n")
+
+                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Unit?>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun appendedContentForPOST(response:Response<Post?>):String {
+        val postResponse = response.body()
+        println("Post User ID $postResponse")
+        var content = ""
+        content += "Code: ${response.code()}\n"
+        content += "ID: ${postResponse?.id}\n"
+        content += "User ID: ${postResponse?.userID}\n"
+        content += "Title: ${postResponse?.title}\n"
+        content += "Text: ${postResponse?.text}\n\n"
+        return content
+    }
+
+
+    private fun updatePOST() {
+
+        val updatedPost = Post(1, null, "New BODY TEXT")
+        val updateCall = jsonPlaceHolderApi.putPost(5, updatedPost)
+
+        updateCall.enqueue(object : Callback<Post> {
+            override fun onResponse(
+                call: Call<Post?>,
+                response: Response<Post?>
+            ) {
+                if (response.isSuccessful) {
+                    textViewResult.append("Success in Update\n")
+                    val contentString = appendedContentForPOST(response)
+                    textViewResult.append(contentString)
+                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(
+                call: Call<Post?>,
+                t: Throwable
+            ) {
+                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun patchPOST() {
+
+        //Only patched body is changed since title is null it will not be changed
+        val patchedPost = Post(1, null, "New BODY TEXT")
+        val patchCall = jsonPlaceHolderApi.patchPost(6, patchedPost)
+
+        patchCall.enqueue(object : Callback<Post> {
+            override fun onResponse(
+                call: Call<Post?>,
+                response: Response<Post?>
+            ) {
+                if (response.isSuccessful) {
+                    textViewResult.append("Success in Patch\n")
+                    val contentString = appendedContentForPOST(response)
+                    textViewResult.append(contentString)
+                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(
+                call: Call<Post?>,
+                t: Throwable
+            ) {
+                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun createPOST(userID: Int, title: String, text: String) {
+
+        val fieldsGet = mutableMapOf<String, String>()
+        fieldsGet.put("userId", "$userID")
+        fieldsGet.put("_sort", "id")
+        fieldsGet.put("_order", "desc")
+        fieldsGet.put("title", title)
+        fieldsGet.put("body", text)
+
+        // val postCall = jsonPlaceHolderApi.createPost(userID, title, text)
+
+        val postCall = jsonPlaceHolderApi.createPost(fieldsGet)
+
+        postCall.enqueue(object : Callback<Post> {
+            override fun onResponse(
+                call: Call<Post?>,
+                response: Response<Post?>
+            ) {
+                if (response.isSuccessful) {
+                    textViewResult.append("Success for Create\n")
+                    val contentString = appendedContentForPOST(response)
+                    textViewResult.append(contentString)
+                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+
+                }
+            }
+
+            override fun onFailure(
+                call: Call<Post?>,
+                t: Throwable
+            ) {
+                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun getPosts() {
@@ -84,10 +212,10 @@ class MainActivity : AppCompatActivity() {
         //val getCall = jsonPlaceHolderApi.getPosts()
         //val getCallByUserID = jsonPlaceHolderApi.getPostsByUserId(6)
 
-        val parametersGET = mutableMapOf<String,String>()
-        parametersGET.put("userId","6")
-        parametersGET.put("_sort","id")
-        parametersGET.put("_order","desc")
+        val parametersGET = mutableMapOf<String, String>()
+        parametersGET.put("userId", "6")
+        parametersGET.put("_sort", "id")
+        parametersGET.put("_order", "desc")
         val getCallByUserIDAndSortDesc = jsonPlaceHolderApi.getPostsByUserIdAndSort(parametersGET)
 
         getCallByUserIDAndSortDesc.enqueue(object : Callback<MutableList<Post>> {
@@ -96,12 +224,12 @@ class MainActivity : AppCompatActivity() {
                 response: Response<MutableList<Post>>
             ) {
                 if (response.isSuccessful) {
-                    textViewResult.append("Success\n")
+                    textViewResult.append("Success for Get\n")
                     Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
                     val posts = response.body()
                     for (post in posts!!) {
 
-                        println("Post User ID ${post}")
+                        println("Post User ID $post")
 
                         var content = ""
                         content += "ID: ${post.id}\n"
@@ -143,7 +271,7 @@ class MainActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
 
                     textViewResult.text = ""
-                    textViewResult.append("Success\n")
+                    textViewResult.append("Success for Comments\n")
                     Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
                     val comments = response.body()
                     for (comment in comments!!) {
