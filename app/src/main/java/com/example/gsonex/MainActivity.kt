@@ -65,7 +65,6 @@ class MainActivity : AppCompatActivity() {
 
 
         textViewResult = findViewById(R.id.text_view_result)
-        textViewResult.text = ""
 
         val baseURLString = "https://jsonplaceholder.typicode.com/"
         val retrofit = Retrofit.Builder()
@@ -74,15 +73,15 @@ class MainActivity : AppCompatActivity() {
             .build()
         jsonPlaceHolderApi = retrofit.create(JSONPlaceholderAPI::class.java)
 
-        //getPosts()
-        //getComments(3)
-        //createPOST(20, "New TITLE", "New BODY TEXT")
+        getPosts()
+        getComments(3)
+        createPOST(20, "New TITLE", "New BODY TEXT")
         updatePOST()
         patchPOST()
-        deletPOST(5)
+        deletePOST(5)
     }
 
-    private fun deletPOST(userID:Int){
+    private fun deletePOST(userID:Int){
 
         val deleteCall = jsonPlaceHolderApi.deletePost(userID)
         deleteCall.enqueue(object : Callback<Unit> {
@@ -93,13 +92,12 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     textViewResult.append("Success in Delete \nResponse Code : ${response.code()}\n")
-
-                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Success Delete", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<Unit?>, t: Throwable) {
-                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Failure Delete", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -131,14 +129,14 @@ class MainActivity : AppCompatActivity() {
                     textViewResult.append("Success in Update\n")
                     val contentString = appendedContentForPOST(response)
                     textViewResult.append(contentString)
-                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Success Update", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(
                 call: Call<Post?>,
                 t: Throwable
             ) {
-                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Failure Update", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -158,14 +156,14 @@ class MainActivity : AppCompatActivity() {
                     textViewResult.append("Success in Patch\n")
                     val contentString = appendedContentForPOST(response)
                     textViewResult.append(contentString)
-                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Success Patch", Toast.LENGTH_SHORT).show()
                 }
             }
             override fun onFailure(
                 call: Call<Post?>,
                 t: Throwable
             ) {
-                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Failure Patch", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -192,22 +190,20 @@ class MainActivity : AppCompatActivity() {
                     textViewResult.append("Success for Create\n")
                     val contentString = appendedContentForPOST(response)
                     textViewResult.append(contentString)
-                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Success Create", Toast.LENGTH_SHORT).show()
 
                 }
             }
-
             override fun onFailure(
                 call: Call<Post?>,
                 t: Throwable
             ) {
-                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Failure Create", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
     private fun getPosts() {
-
 
         //val getCall = jsonPlaceHolderApi.getPosts()
         //val getCallByUserID = jsonPlaceHolderApi.getPostsByUserId(6)
@@ -216,6 +212,7 @@ class MainActivity : AppCompatActivity() {
         parametersGET.put("userId", "6")
         parametersGET.put("_sort", "id")
         parametersGET.put("_order", "desc")
+
         val getCallByUserIDAndSortDesc = jsonPlaceHolderApi.getPostsByUserIdAndSort(parametersGET)
 
         getCallByUserIDAndSortDesc.enqueue(object : Callback<MutableList<Post>> {
@@ -225,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
                     textViewResult.append("Success for Get\n")
-                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Success GET", Toast.LENGTH_SHORT).show()
                     val posts = response.body()
                     for (post in posts!!) {
 
@@ -236,7 +233,6 @@ class MainActivity : AppCompatActivity() {
                         content += "User ID: ${post.userID}\n"
                         content += "Title: ${post.title}\n"
                         content += "Text: ${post.text}\n\n"
-
                         textViewResult.append(content)
 
                     }
@@ -247,7 +243,7 @@ class MainActivity : AppCompatActivity() {
                 call: Call<MutableList<Post>?>,
                 t: Throwable
             ) {
-                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Failure GET", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -270,9 +266,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 if (response.isSuccessful) {
 
-                    textViewResult.text = ""
                     textViewResult.append("Success for Comments\n")
-                    Toast.makeText(this@MainActivity, "Success", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Success Comments", Toast.LENGTH_SHORT).show()
                     val comments = response.body()
                     for (comment in comments!!) {
                         var content = ""
@@ -290,7 +285,7 @@ class MainActivity : AppCompatActivity() {
                 call: Call<MutableList<Comment>?>,
                 t: Throwable
             ) {
-                Toast.makeText(this@MainActivity, "Failure", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "Failure Comments", Toast.LENGTH_SHORT).show()
             }
         })
 
